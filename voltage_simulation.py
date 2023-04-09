@@ -2,6 +2,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.ticker as mticker
 import tkinter as tk
+from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg, 
+NavigationToolbar2Tk)
 
 k = 8.9875517923*(10**9) #coulomb's constant
 Q = 1.60217663*(10**-19) #charge for an electron/proton
@@ -13,7 +15,9 @@ def manual_log(num):
     new_num = new_num*num/abs(num)
     return new_num
 
-    
+def clean():
+    for widget in window.winfo_children():
+        widget.pack_forget()
 
 
 def log_tick_formatter(val, pos=None):
@@ -49,27 +53,48 @@ class particle:
         self.x = location[0]
         self.y = location[1]
 
-
-fig = plt.figure()
-ax = plt.axes(projection='3d')
-ax.zaxis.set_major_formatter(mticker.FuncFormatter(log_tick_formatter))
-ax.zaxis.set_major_locator(mticker.MaxNLocator(integer=True))
-
-
-xline = np.linspace(-16, 16, 60)
-yline = np.linspace(-16, 16, 60)
-X, Y = np.meshgrid(xline, yline)
-
-s = space()
-z = s.zline(X, Y)
-Z = np.array([[manual_log(z[n1][n2]) for n2 in range(len(z[n1]))] for n1 in range(len(z))])
-
-ax.plot_surface(X, Y, Z, cmap=plt.cm.gray)
+def plot():
+    clean()
+    fig = plt.figure()
+    ax = plt.axes(projection='3d')
+    ax.zaxis.set_major_formatter(mticker.FuncFormatter(log_tick_formatter))
+    ax.zaxis.set_major_locator(mticker.MaxNLocator(integer=True))
 
 
+    xline = np.linspace(-16, 16, 60)
+    yline = np.linspace(-16, 16, 60)
+    X, Y = np.meshgrid(xline, yline)
 
-plt.show()
+    s = space()
+    z = s.zline(X, Y)
+    Z = np.array([[manual_log(z[n1][n2]) for n2 in range(len(z[n1]))] for n1 in range(len(z))])
+
+    ax.plot_surface(X, Y, Z, cmap=plt.cm.gray)
+
+    canvas = FigureCanvasTkAgg(fig, master=window)
+    canvas.draw()
+    canvas.get_tk_widget().pack()
+
+    toolbar = NavigationToolbar2Tk(canvas, window)
+    toolbar.update()
+    canvas.get_tk_widget().pack()
+
+
+def main():
+    clean()
+    plot_btn = tk.Button(master=window, command=plot, text="plot")
+    plot_btn.pack()
 
 
 
+window = tk.Tk()
 
+start_btn = tk.Button(master=window, command=main, text="Cliquez ici pour commencer")
+start_btn.pack()
+
+bibliography_btn = tk.Button(master=window, command=bibliography, text="Voir la bibliographie")
+bibliography_btn.pack()
+
+
+
+window.mainloop()
