@@ -7,32 +7,24 @@ from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg,
 NavigationToolbar2Tk)
 import functools as ft
 
+def z_tick_formatter(val, pos=None):
+    return "{}V".format(val)
 
+def standardize(item):
+    if item > 100:
+        return 100
+    if item < -100:
+        return -100
+    return item
 
 k = 8.9875517923*(10**9) #coulomb's constant
 Q = 1.60217663*(10**-19) #charge for an electron/proton
 e = lambda r:k*Q/r
 
-def manual_log(num):
-    new_num = np.log10(abs(num*(10**14)))
-    new_num = (new_num if new_num > 0 else 0) # if the exponent is still negative after multiplying by 10^14, its 0 now
-    new_num = new_num*num/abs(num)
-    return new_num
 
 def clean():
     for widget in window.winfo_children():
         widget.pack_forget()
-
-
-def log_tick_formatter(val, pos=None):
-    if val == 0:
-        return "0"
-    
-    return "{}10^{}V".format(("" if val > 0 else "-"), 
-                            int(abs(val)-14))
-
-
-
 
 
 class space:
@@ -49,6 +41,10 @@ class space:
         if num == 4:
             self.particles = [particle(1, (0, 3)), particle(-1, (-0, -3))]
 
+        for p in self.particles:
+            p.x *= 1.5*10**-11
+            p.y *= 1.5*10**-11
+
         
 
 
@@ -57,6 +53,7 @@ class space:
         for p in self.particles:
             vector = (X-p.x, Y-p.y)
             forces = e((vector[0]**2+vector[1]**2)**0.5)*p.charge
+            forces = np.array([[standardize(forces[n1][n2]) for n2 in range(len(forces[n1]))] for n1 in range(len(forces))])
             values = np.add(values, forces)
         return values
          
@@ -68,21 +65,29 @@ class particle:
         self.x = location[0]
         self.y = location[1]
 
+def setup_ax(num):
+    ax = plt.axes(projection='3d')
+    ax.view_init(elev=25, azim=-137)
+    ax.zaxis.set_major_formatter(mticker.FuncFormatter(z_tick_formatter))
+    
+    plt.xlabel("Axe des X (en 10^-10 m)")
+    plt.ylabel("Axe des Y (en 10^-10 m)")
+
+    plt.ticklabel_format()
+
+    c = coords(num)
+    ax.plot_surface(c[0]*10**10, c[1]*10**10, c[2], cmap=plt.cm.gray)
+    return ax
+
 def plot(num):
     clean()
     fig = plt.figure()
-    ax = plt.axes(projection='3d')
-    ax.zaxis.set_major_formatter(mticker.FuncFormatter(log_tick_formatter))
-    ax.zaxis.set_major_locator(mticker.MaxNLocator(integer=True))
-
-    ax.view_init(elev=25, azim=-137)
-
-    c = coords(num)
-    ax.plot_surface(c[0], c[1], c[2], cmap=plt.cm.gray)
+    ax = setup_ax(num)
 
     canvas = FigureCanvasTkAgg(fig, master=window)
     canvas.draw()
     canvas.get_tk_widget().pack()
+    
 
     toolbar = NavigationToolbar2Tk(canvas, window)
     toolbar.update()
@@ -108,13 +113,15 @@ def main():
     plot5_btn = tk.Button(master=window, command=ft.partial(plot, 4), text="Deux charges opposes")
     plot5_btn.pack()
 
+
+
 def coords(num):
-    xline = np.linspace(-16, 16, 60)
-    yline = np.linspace(-16, 16, 60)
+    xline = np.linspace(-16*10**-11, 16*10**-11, 60)
+    yline = np.linspace(-16*10**-11, 16*10**-11, 60)
     X, Y = np.meshgrid(xline, yline)
     s = space(num)
-    z = s.zline(X, Y)
-    Z = np.array([[manual_log(z[n1][n2]) for n2 in range(len(z[n1]))] for n1 in range(len(z))])
+    Z = s.zline(X, Y)
+    
     return (X, Y, Z)
 
 
