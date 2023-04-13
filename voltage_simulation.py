@@ -42,7 +42,16 @@ class space:
             self.particles = [particle(-1, (-3, 9)), particle(-1, (-3, 3)), particle(1, (3, 9)), particle(1, (3, 3)), particle(-1, (-3, -3)), particle(1, (3, -3)), particle(1, (3, -9)), particle(-1, (-3, -9))]
         if num == 1:
             self.particles = [particle(-1, (-6, 9)), particle(-1, (-6, 3)), particle(1, (6, 9)), particle(1, (6, 3)), particle(-1, (-6, -3)), particle(1, (6, -3)), particle(1, (6, -9)), particle(-1, (-6, -9))]
-    
+        if num == 2:
+            self.particles = [particle(1, (0, 3)), particle(1, (0, -3))]
+        if num == 3:
+            self.particles = [particle(-1, (0, 3)), particle(-1, (-0, -3))]
+        if num == 4:
+            self.particles = [particle(1, (0, 3)), particle(-1, (-0, -3))]
+
+        
+
+
     def zline(self, X, Y):
         values = np.zeros((60, 60))
         for p in self.particles:
@@ -66,6 +75,7 @@ def plot(num):
     ax.zaxis.set_major_formatter(mticker.FuncFormatter(log_tick_formatter))
     ax.zaxis.set_major_locator(mticker.MaxNLocator(integer=True))
 
+    ax.view_init(elev=25, azim=-137)
 
     c = coords(num)
     ax.plot_surface(c[0], c[1], c[2], cmap=plt.cm.gray)
@@ -85,8 +95,18 @@ def main():
     clean()
     plot1_btn = tk.Button(master=window, command=ft.partial(plot, 0), text="Plusieurs charges rapproches")
     plot1_btn.pack()
+
     plot2_btn = tk.Button(master=window, command=ft.partial(plot, 1), text="Plusieurs charges eloignes")
     plot2_btn.pack()
+
+    plot3_btn = tk.Button(master=window, command=ft.partial(plot, 2), text="Deux protons")
+    plot3_btn.pack()
+
+    plot4_btn = tk.Button(master=window, command=ft.partial(plot, 3), text="Deux electrons")
+    plot4_btn.pack()
+
+    plot5_btn = tk.Button(master=window, command=ft.partial(plot, 4), text="Deux charges opposes")
+    plot5_btn.pack()
 
 def coords(num):
     xline = np.linspace(-16, 16, 60)
