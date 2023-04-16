@@ -2,10 +2,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.ticker as mticker
 import tkinter as tk
-import tkinter.ttk as ttk
 from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg, 
 NavigationToolbar2Tk)
-import functools as ft
+import sys
 
 def z_tick_formatter(val, pos=None):
     return "{}V".format(val)
@@ -72,6 +71,7 @@ def setup_ax(num):
     
     plt.xlabel("Axe des X (en 10^-10 m)")
     plt.ylabel("Axe des Y (en 10^-10 m)")
+    title(num)
 
     plt.ticklabel_format()
 
@@ -79,39 +79,50 @@ def setup_ax(num):
     ax.plot_surface(c[0]*10**10, c[1]*10**10, c[2], cmap=plt.cm.gray)
     return ax
 
-def plot(num):
-    clean()
-    fig = plt.figure()
+def title(num):
+    if num == 0:
+        plt.title("Deux plaques chargées (rapprochées)")
+    if num == 1:
+        plt.title("Deux plaques chargées (separées)")
+    if num == 2:
+        plt.title("Deux protons")
+    if num == 3:
+        plt.title("Deux électrons")
+    if num == 4:
+        plt.title("Un électron et un proton")
+
+
+def plot(num, frame):
+    fig = plt.figure(figsize=(4, 4))
     ax = setup_ax(num)
 
-    canvas = FigureCanvasTkAgg(fig, master=window)
+    canvas = FigureCanvasTkAgg(fig, master=frame)
     canvas.draw()
     canvas.get_tk_widget().pack()
+
     
+    frame.pack(side=tk.RIGHT)
 
-    toolbar = NavigationToolbar2Tk(canvas, window)
-    toolbar.update()
-    canvas.get_tk_widget().pack()
 
-    return_btn = tk.Button(master=window, command=main, text="Retourner")
-    return_btn.pack()
+    
 
 def main():
     clean()
-    plot1_btn = tk.Button(master=window, command=ft.partial(plot, 0), text="Plusieurs charges rapproches")
-    plot1_btn.pack()
+    frame1 = tk.Frame(master=window)
+    frame2 = tk.Frame(master=window)
 
-    plot2_btn = tk.Button(master=window, command=ft.partial(plot, 1), text="Plusieurs charges eloignes")
-    plot2_btn.pack()
+    plot(0, tk.Frame(master=frame1))
+    plot(1, tk.Frame(master=frame1))
+    plot(2, tk.Frame(master=frame1))
+    plot(3, tk.Frame(master=frame2))
+    plot(4, tk.Frame(master=frame2))
 
-    plot3_btn = tk.Button(master=window, command=ft.partial(plot, 2), text="Deux protons")
-    plot3_btn.pack()
+    ext_btn = tk.Button(width=100, master=window, command=sys.exit, text="Arreter", bg="red", font=('Times', 24))
+    
 
-    plot4_btn = tk.Button(master=window, command=ft.partial(plot, 3), text="Deux electrons")
-    plot4_btn.pack()
-
-    plot5_btn = tk.Button(master=window, command=ft.partial(plot, 4), text="Deux charges opposes")
-    plot5_btn.pack()
+    frame1.pack()
+    frame2.pack()
+    ext_btn.pack(side=tk.BOTTOM)
 
 
 
@@ -130,9 +141,9 @@ def coords(num):
 
 
 window = tk.Tk()
+window.attributes("-fullscreen", True)
 
-start_btn = tk.Button(master=window, command=main, text="Cliquez ici pour commencer")
-start_btn.pack()
+main()
 
 #bibliography_btn = tk.Button(master=window, command=bibliography, text="Voir la bibliographie")
 #bibliography_btn.pack()
