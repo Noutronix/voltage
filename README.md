@@ -2,7 +2,6 @@
 Ceci est mon projet de physique pour le cours SPH4U1. C'est, essentiellement, un groupement de cinq graphiques interactives (la perspective des graphiques peuvent être tournées) qui représentent le voltage avec la hauteur. C'est un peu comme un graphique de lignes equipotentielles en 2d mais au lieu de lignes qui représentent un voltage plus haut, c'est l'axe des z dans des graphiques 3D. 
 
 Les modules requises pour l'execution du logiciel sont dans le fichier requirements.txt, mais les voici quand-même:
-- tkinter
 - matplotlib
 - numpy
 
